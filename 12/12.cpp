@@ -87,7 +87,7 @@ int compute_fence_cost2(const Grid& grid) {
         for (const auto& pos : area.cells) {
             int y = pos.first, x = pos.second;
             char c = grid.at(pos);
-            char default_char = '*';
+            char default_char = 'X';
 
             char top = grid.count({y - 1, x}) ? grid.at({y - 1, x}) : default_char;
             char right = grid.count({y, x + 1}) ? grid.at({y, x + 1}) : default_char;
