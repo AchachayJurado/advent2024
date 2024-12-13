@@ -5,16 +5,29 @@
 #include <queue>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 using Pos = std::pair<int, int>;
 using Path = std::vector<Pos>;
-using Map = std::unordered_map<Pos, int, std::hash<std::string>>;
 
 struct PosHash {
-    size_t operator()(const Pos& pos) const {
-        return std::hash<int>()(pos.first) ^ std::hash<int>()(pos.second);
+    std::size_t operator()(const Pos& pos) const {
+        return std::hash<int>()(pos.first) ^ (std::hash<int>()(pos.second) << 1);
     }
 };
+
+struct PathHash {
+    std::size_t operator()(const std::pair<Path, Pos>& entry) const {
+        std::size_t hash = 0;
+        for (const auto& p : entry.first) {
+            hash ^= std::hash<int>()(p.first) ^ (std::hash<int>()(p.second) << 1);
+        }
+        hash ^= std::hash<int>()(entry.second.first) ^ (std::hash<int>()(entry.second.second) << 1);
+        return hash;
+    }
+};
+
+using Map = std::unordered_map<Pos, int, PosHash>;
 
 // Helper to find neighbors
 std::vector<Pos> neighbors(const Pos& pos, const Map& map) {
@@ -59,7 +72,7 @@ int count_paths(const Pos& from, const Map& map) {
 // Count paths and track full paths
 int count_paths2(const Pos& from, const Map& map) {
     std::queue<std::pair<Path, Pos>> queue;
-    std::unordered_set<std::pair<Path, Pos>, PosHash> visited;
+    std::unordered_set<std::pair<Path, Pos>, PathHash> visited;
 
     queue.push({{from}, from});
     int sum = 0;
