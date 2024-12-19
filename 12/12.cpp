@@ -7,10 +7,21 @@
 #include <string>
 #include <numeric>
 #include <utility>
+#include <optional>
 
-using Pos = std::pair<int, int>; // (y, x)
-using Grid = std::unordered_map<Pos, char>;
-using CellSet = std::unordered_set<Pos, std::hash<std::string>>;
+// Define Pos as a pair of integers
+using Pos = std::pair<int, int>;
+
+// Custom hash function for Pos
+struct PosHash {
+    std::size_t operator()(const Pos& pos) const {
+        return std::hash<int>()(pos.first) ^ (std::hash<int>()(pos.second) << 1);
+    }
+};
+
+// Grid is a map of Pos to char
+using Grid = std::unordered_map<Pos, char, PosHash>;
+using CellSet = std::unordered_set<Pos, PosHash>;
 
 struct Entry {
     int area = 0;
@@ -87,7 +98,7 @@ int compute_fence_cost2(const Grid& grid) {
         for (const auto& pos : area.cells) {
             int y = pos.first, x = pos.second;
             char c = grid.at(pos);
-            char default_char = 'X';
+            char default_char = '2';
 
             char top = grid.count({y - 1, x}) ? grid.at({y - 1, x}) : default_char;
             char right = grid.count({y, x + 1}) ? grid.at({y, x + 1}) : default_char;
